@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<string.h>
 
 int index = -1;
 int array[16];
@@ -70,7 +71,17 @@ int IsEmpty() {
 	return list == NULL;
 }
 
-//TODO: math expression parse
+int CalcReversePolish(char expression[]) {
+	int length = strlen(expression);
+	for (int i = 0; i < length; i++) {
+		if (expression[i] >= '0' && expression[i] <= '9') Push(expression[i] - '0');
+		if (expression[i] == '+') Push((int) (Pop() + Pop()));
+		if (expression[i] == '-') Push((int) (-(Pop() - Pop())));
+		if (expression[i] == '*') Push((int) (Pop() * Pop()));
+		if (expression[i] == '/') Push((int) (1 / (Pop() / Pop())));
+	}
+	return Pop();
+}
 
 void main() {
 	PushArray(8);
@@ -88,4 +99,8 @@ void main() {
 	while (!IsEmpty()) {
 		printf("%d, ", Pop());
 	}
+
+	char expression[] = "587-9*+";
+
+	printf("expression: %s, value: %d", expression, CalcReversePolish(expression));
 }
