@@ -94,7 +94,7 @@ void Inorder(struct Node* tree) {
 	if (tree->right != NULL) Inorder(tree->right);
 }
 
-// 两个函数只检查了所有左子树的节点是否小于当前节点
+// 只检查了所有左子树的节点是否小于当前节点
 int IsSubtreeLesser(struct Node* tree, int value) {
 	if (tree == NULL) return 1;
 	if (tree->value >= value) return 0;
@@ -126,6 +126,8 @@ int IsBstFastInternal(struct Node* tree, int allowedMax, int allowedMin) {
 int IsBstFast(struct Node* tree) {
 	IsBstFastInternal(tree, INT_MAX, INT_MIN);
 }
+
+// third method: Bst Inorder + Check arrangement
 
 int Height(struct Node* node) {
 	if (node == NULL) return -1;
