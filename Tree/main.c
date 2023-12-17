@@ -136,6 +136,66 @@ int Height(struct Node* node) {
 	return max(leftHeight, rightHeight) + 1;
 }
 
+// return the next connection cursor.
+struct Node* Delete(struct Node* root, int value) {
+	if (root == NULL) return NULL;
+
+	// route to the position of the value, this may change the connection
+	if (value < root->value) root->left = Delete(root->left, value);
+	if (value > root->value) root->right = Delete(root->right, value);
+
+	// we are now at the position of the value
+	if (value == root->value) {
+		// case: it's a leaf node
+		if (root->left == NULL && root->right == NULL) {
+			// simply delete it and set NULL to the connection
+			free(root);
+			return NULL;
+		}
+		// case: left and right
+		if (root->left != NULL && root->right != NULL) {
+			// find the minimal value in the right subtree (min value doesn't have right node)
+			int minValue = Min(root->right);
+			root->value = minValue;
+			root->right = Delete(root->right, minValue);
+			return root;
+		}
+		// case: left or right
+		if (root->left == NULL || root->right == NULL) {
+			struct Node* next = (root->left != NULL) ? root->left : root->right;
+			free(root);
+			return next;
+		}
+	}
+
+	return root; // we're not in the case (in the router path), don't change the connection.
+}
+
+struct Node* FindSuccessor(struct Node* target, int value) {
+	// find the node of the value (keep track on parent)
+	struct Node* parent = target;
+	while (value != target->value) {
+		if (target == NULL) break; // the value is not exist.
+		parent = target;
+		if (value < target->value) target = target->left;
+		if (value > target->value) target = target->right;
+	}
+
+	if (target == NULL) return NULL;
+
+	// case: have right subtree: go to find the leftmost node (min value in the right subtree)
+	if (target->right != NULL) {
+		// target: LD (R)
+		target = target->right;
+		while (target->left != NULL) {
+			target = target->left;
+		}
+		return target; // we got the leftmost node in the right subtree
+	}
+	// case: don't have right subtree: go to find the parent node (we keep track on parent in the loop)
+	else return parent;
+}
+
 void main() {
 	struct Node* tree = NULL;
 	Insert(&tree, 16);
@@ -158,4 +218,11 @@ void main() {
 	// tree->left->left->value = 812793049;
 	printf("\nIsBst: %d", IsBst(tree));
 	printf("\nIsBstFast: %d", IsBstFast(tree));
+	tree = Delete(tree, 9);
+	tree = Delete(tree, 16);
+	printf("\nLevelorder: ");
+	Levelorder(tree);
+	tree = FindSuccessor(tree, 10); // we cut out part of the bst tree
+	printf("\nLevelorder: ");
+	Levelorder(tree);
 }
